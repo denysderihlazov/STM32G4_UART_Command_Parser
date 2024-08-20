@@ -8,7 +8,11 @@
 #ifndef INC_RING_BUFFER_H_
 #define INC_RING_BUFFER_H_
 
-#define BUFFER_SIZE 32
+#include "main.h"
+
+#define RING_BUFFER_SIZE 16
+
+#define ENDLINE '\n'
 
 // Success status
 typedef enum
@@ -18,18 +22,19 @@ typedef enum
 } RB_Status;
 
 // RB object
-typedef struct{
-	uint8_t *Head;
-	uint8_t *Tail;
-	// uint8_t *RB[BUFFER_SIZE];
+typedef struct
+{
+	uint16_t Head;
+	uint16_t Tail;
+	uint8_t Buffer[RING_BUFFER_SIZE];
 } RingBuffer_t;
 
 // Functions
 
-RB_Status RingBuffer_Write(RingBuffer_t *RingBuffer, uint8_t *Value);
+RB_Status RingBuffer_Write(RingBuffer_t *RingBuffer, uint8_t Value);
 
-RB_Status RingBuffer_Read(RingBuffer_t *RingBuffer, uint8_t Value);
+RB_Status RingBuffer_Read(RingBuffer_t *RingBuffer, uint8_t *Value);
 
-RB_Status RingBuffer_Flush(RingBuffer_t *RingBuffer);
+void RingBuffer_Flush(RingBuffer_t *RingBuffer);
 
 #endif /* INC_RING_BUFFER_H_ */

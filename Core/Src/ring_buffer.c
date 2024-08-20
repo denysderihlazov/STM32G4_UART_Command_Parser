@@ -8,25 +8,46 @@
 #include "ring_buffer.h"
 
 
-
-
 // Functions
 // Write
-RB_Status RingBuffer_Write(RingBuffer_t *RingBuffer, uint8_t *Value)
+RB_Status RingBuffer_Write(RingBuffer_t *RingBuffer, uint8_t Value)
 {
-	// <- Check if RB has place to write ->
+
+	// Check if RB has place to write
+	if((RingBuffer->Head + 1) % RING_BUFFER_SIZE == RingBuffer->Tail)
+	{
+		return RB_ERROR; // The buffer has no space to write
+	}
+
+	// Write value to ring buffer
+	RingBuffer->Buffer[RingBuffer->Head] = Value;
+
+	// Shift RB head pointer
+	RingBuffer->Head = (RingBuffer->Head + 1) % RING_BUFFER_SIZE;
+
+	return RB_OK;
 }
 
 
 // Read
-RB_Status RingBuffer_Read(RingBuffer_t *RingBuffer, uint8_t Value)
+RB_Status RingBuffer_Read(RingBuffer_t *RingBuffer, uint8_t *Value)
 {
-	// <- Check if RB isn't empty ->
+	// Check if RB isn't empty
+	if((RingBuffer->Tail + 1) % RING_BUFFER_SIZE == RingBuffer->Head)
+	{
+		return RB_ERROR; // The buffer is empty
+	}
+
+	// <- Read from buffer ->
+
+	return RB_OK;
 }
 
 
-// Flush
-RB_Status RingBuffer_Flush(RingBuffer_t *RingBuffer)
+// Flush (Clean RingBuffer)
+void RingBuffer_Flush(RingBuffer_t *RingBuffer)
 {
-	// <- just flush it ->
+	// Reset Write\Read pointers
+	RingBuffer->Head = 0;
+	RingBuffer->Tail = 0;
 }

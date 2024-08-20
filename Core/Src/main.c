@@ -23,6 +23,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stdint.h"
+#include "stdio.h"
+
 #include "ring_buffer.h"
 /* USER CODE END Includes */
 
@@ -44,9 +47,13 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t TmpBuffer; // Temp buffer for RingBuffer
+uint8_t TmpBuffer; // Buffer to receive 1 byte via LPUART1
+uint8_t receivedLines; // Lines received from LPUART
 
 RingBuffer_t RingBuffer; // Init Ring Buffer object
+
+char Message[32];
+uint8_t Length;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -98,15 +105,24 @@ int main(void)
 
   // Start listening for IRQ on LPUART1
   //    Callback will be handled in the User Code 4
-  HAL_UART_Receive_IT(&hlpuart1, (uint8_t *)TmpBuffer, 1);
+  HAL_UART_Receive_IT(&hlpuart1, &TmpBuffer, 1);
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  // <- do while reader from RingBuffer ->
-	  //	<- parse ->
+	  // <- Delay just for tests ->
+	  HAL_Delay(1000);
+
+	  if(receivedLines > 0)
+	  {
+		  // <- do while reader from RingBuffer ->
+		  //	<- parse ->
+	  }
+
 
     /* USER CODE END WHILE */
 
@@ -167,6 +183,9 @@ void SystemClock_Config(void)
   */
 static void MX_NVIC_Init(void)
 {
+  /* EXTI15_10_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
   /* LPUART1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(LPUART1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(LPUART1_IRQn);
@@ -178,10 +197,25 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	// Checking if Callback from lpuart1
 	if(huart->Instance == LPUART1)
 	{
-		// <- Here write byte to the ring buffer ->
+		// Blink led just for test of incoming data
+		// HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+
+
+		// Try to write byte to the ring buffer
+		if(RB_OK == RingBuffer_Write(&RingBuffer, TmpBuffer))
+		{
+			Length = sprintf(Message, "Received: %c\r\n", TmpBuffer);
+			HAL_UART_Transmit_IT(&hlpuart1, (uint8_t*)Message, Length);
+
+			if(TmpBuffer == ENDLINE)
+			{
+				receivedLines++;
+				HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			}
+		}
 
 		// Re-enable lpuart1 to receive next byte from interrupt
-		HAL_UART_Receive_IT(&hlpuart1, (uint8_t *)TmpBuffer, 1);
+		HAL_UART_Receive_IT(&hlpuart1, &TmpBuffer, 1);
 	}
 }
 /* USER CODE END 4 */
