@@ -33,12 +33,15 @@ RB_Status RingBuffer_Write(RingBuffer_t *RingBuffer, uint8_t Value)
 RB_Status RingBuffer_Read(RingBuffer_t *RingBuffer, uint8_t *Value)
 {
 	// Check if RB isn't empty
-	if((RingBuffer->Tail + 1) % RING_BUFFER_SIZE == RingBuffer->Head)
+	if(RingBuffer->Tail == RingBuffer->Head)
 	{
 		return RB_ERROR; // The buffer is empty
 	}
 
 	// <- Read from buffer ->
+	*Value = RingBuffer->Buffer[RingBuffer->Tail];
+
+	RingBuffer->Tail = (RingBuffer->Tail + 1) % RING_BUFFER_SIZE;
 
 	return RB_OK;
 }
