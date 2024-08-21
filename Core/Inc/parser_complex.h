@@ -18,8 +18,7 @@
 #include "utils.h"
 
 
-char Message[32];
-uint8_t Length;
+
 
 // Functions
 // Take each line and put to ReceivedData buffer

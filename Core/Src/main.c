@@ -28,6 +28,8 @@
 #include "string.h"
 
 #include "ring_buffer.h"
+#include "parser_complex.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -107,6 +109,7 @@ int main(void)
   // Start listening for IRQ on LPUART1
   //    Callback will be handled in the User Code 4
   HAL_UART_Receive_IT(&hlpuart1, &TmpReceived, 1);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -117,7 +120,7 @@ int main(void)
 	  if(receivedLines > 0)
 	  {
 
-		  Parser_handleLine(&RingBuffer, &ReceivedData);
+		  Parser_handleLine(&RingBuffer, ReceivedData);
 
 		  receivedLines--;
 

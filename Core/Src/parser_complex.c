@@ -9,6 +9,9 @@
 #include "parser_complex.h"
 
 
+char Message[32];
+uint8_t Length;
+
 // Functions
 // Take each line and put to ReceivedData buffer
 void Parser_handleLine(RingBuffer_t *RingBuffer, uint8_t *DataToParse)
