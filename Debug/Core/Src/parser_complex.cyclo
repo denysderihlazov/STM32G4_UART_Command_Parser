@@ -1,0 +1,3 @@
+../Core/Src/parser_complex.c:14:6:Parser_handleLine	3
+../Core/Src/parser_complex.c:41:13:Parser_ParseOnBoardLED	6
+../Core/Src/parser_complex.c:70:6:Parser_Parse	2

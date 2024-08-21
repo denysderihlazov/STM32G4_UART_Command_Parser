@@ -49,15 +49,12 @@
 
 /* USER CODE BEGIN PV */
 uint8_t TmpReceived; // Buffer to receive 1 byte via LPUART1
-uint8_t i;
+
 uint8_t receivedLines; // Lines received from LPUART
 
 RingBuffer_t RingBuffer; // Init Ring Buffer object
 
 uint8_t ReceivedData[32]; // A buffer for parsing data
-
-char Message[32];
-uint8_t Length;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -110,8 +107,6 @@ int main(void)
   // Start listening for IRQ on LPUART1
   //    Callback will be handled in the User Code 4
   HAL_UART_Receive_IT(&hlpuart1, &TmpReceived, 1);
-
-  uint8_t TmpRead; // Buffer to read 1 byte from RingBuffer
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -121,41 +116,12 @@ int main(void)
 
 	  if(receivedLines > 0)
 	  {
-		  i = 0; // Reset counter for next UART RX
-		  do
-		  {
-			  // Read 1 byte from Ring Buffer
-			  RingBuffer_Read(&RingBuffer, &TmpRead);
 
-			  // Write to parse buffer
-			  if(TmpRead == ENDLINE)
-			  {
-				  // Swap '\n' with 0
-				  ReceivedData[i] = 0;
-			  }
-			  else
-			  {
-				  // Put value read from RingBuffer to parse buffer
-				  ReceivedData[i] = TmpRead;
-			  }
-			  i++;
-		  } while(TmpRead != ENDLINE); // Read from RingBuffer until '\n' sign
+		  Parser_handleLine(&RingBuffer, &ReceivedData);
+
 		  receivedLines--;
 
-
-		  // Parsing ParseBuffor to control LED
-		  if(strcmp("LED_ON", (char*)ReceivedData) == 0)
-		  {
-			  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
-			  Length = sprintf(Message, "Led On");
-			  HAL_UART_Transmit_IT(&hlpuart1, (uint8_t*)Message, Length);
-		  }
-		  else if(strcmp("LED_OFF", (char*)ReceivedData) == 0)
-		  {
-			  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
-			  Length = sprintf(Message, "Led Off");
-			  HAL_UART_Transmit_IT(&hlpuart1, (uint8_t*)Message, Length);
-		  }
+		  Parser_Parse(ReceivedData);
 	  }
 
     /* USER CODE END WHILE */
