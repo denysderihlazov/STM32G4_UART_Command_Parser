@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "stdint.h"
 #include "stdio.h"
+#include "string.h"
 
 #include "ring_buffer.h"
 /* USER CODE END Includes */
@@ -140,13 +141,22 @@ int main(void)
 			  i++;
 		  } while(TmpRead != ENDLINE); // Read from RingBuffer until '\n' sign
 		  receivedLines--;
+
+
+		  // Parsing ParseBuffor to control LED
+		  if(strcmp("LED_ON", (char*)ReceivedData) == 0)
+		  {
+			  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+			  Length = sprintf(Message, "Led On");
+			  HAL_UART_Transmit_IT(&hlpuart1, (uint8_t*)Message, Length);
+		  }
+		  else if(strcmp("LED_OFF", (char*)ReceivedData) == 0)
+		  {
+			  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+			  Length = sprintf(Message, "Led Off");
+			  HAL_UART_Transmit_IT(&hlpuart1, (uint8_t*)Message, Length);
+		  }
 	  }
-
-
-	  // <- parse add here ->
-
-	  // Length = sprintf(Message, "Received: %c\r\n", TmpReceived);
-	  // HAL_UART_Transmit_IT(&hlpuart1, (uint8_t*)Message, Length);
 
     /* USER CODE END WHILE */
 
